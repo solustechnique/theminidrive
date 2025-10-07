@@ -1,545 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Freign Mini Cloud Drive — 8TB</title>
+  <meta charset="utf-8" />
+  <title>Freign Mini Drive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- IBM Plex Mono -->
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #000000;
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: "IBM Plex Mono", monospace;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.25rem;
-      border-bottom: 2px solid var(--fg);
-    }
-    header h1 {
-      margin: 0;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.02em;
-    }
-    .controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    input[type="text"] {
-      border: 2px solid var(--fg);
-      background: var(--bg);
-      color: var(--fg);
-      padding: 0.4rem 0.6rem;
-      font-family: "IBM Plex Mono", monospace;
-      min-width: 200px;
-    }
-    button {
-      background: var(--fg);
-      color: var(--bg);
-      border: 2px solid var(--fg);
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.9rem;
-    }
-    button:hover {
-      background: var(--bg);
-      color: var(--fg);
-    }
-    main {
-      padding: 1.25rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: var(--fg);
-      color: var(--bg);
-      padding: 1rem;
-      border: 2px solid var(--fg);
-      cursor: pointer;
-      transition: 0.15s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      min-height: 120px;
-      justify-content: space-between;
-    }
-    .card:hover { background: var(--bg); color: var(--fg); }
-    .name { font-weight: 600; }
-    .type { font-size: 0.85rem; opacity: 0.85; }
-
-    /* Modal (Add/Edit + Viewer) */
-    .modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 50;
-    }
-    .modal.show { display: flex; }
-    .modal-content {
-      background: var(--bg);
-      color: var(--fg);
-      border: 2px solid var(--fg);
-      width: min(960px, 92vw);
-      max-height: 90vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-    }
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.8rem 1rem;
-      border-bottom: 2px solid var(--fg);
-    }
-    .modal-title { font-weight: 600; }
-    .modal-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 380px;
-    }
-    .pane {
-      border-right: 2px solid var(--fg);
-      padding: 0.75rem;
-      overflow: auto;
-    }
-    .pane:last-child { border-right: none; }
-    .viewer {
-      display: grid;
-      place-items: center;
-      height: 100%;
-    }
-    .viewer img, .viewer video, .viewer iframe {
-      max-width: 100%;
-      max-height: 100%;
-      border: 2px solid var(--fg);
-      background: var(--bg);
-    }
-    textarea {
-      width: 100%;
-      height: calc(100% - 0.5rem);
-      border: 2px solid var(--fg);
-      padding: 0.5rem;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.9rem;
-      background: var(--bg);
-      color: var(--fg);
-    }
-    .modal-footer {
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.8rem 1rem;
-      border-top: 2px solid var(--fg);
-      justify-content: flex-end;
-    }
-
-    /* Overlay (Fullscreen / RUN preview) */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      background: rgba(0,0,0,0.85);
-      align-items: center;
-      justify-content: center;
-      z-index: 60;
-    }
-    .overlay.show { display: flex; }
-    .overlay-inner {
-      background: var(--bg);
-      border: 2px solid var(--fg);
-      width: min(1024px, 95vw);
-      height: min(768px, 90vh);
-      display: grid;
-      grid-template-rows: auto 1fr;
-    }
-    .overlay-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.6rem 0.8rem;
-      border-bottom: 2px solid var(--fg);
-    }
-    .overlay-body {
-      padding: 0.8rem;
-      overflow: auto;
-    }
-    .overlay-body iframe, .overlay-body img, .overlay-body video, .overlay-body pre {
-      width: 100%;
-      height: 100%;
-      border: 2px solid var(--fg);
-      background: var(--bg);
-    }
-
-    /* Helpers */
-    .hint { font-size: 0.85rem; opacity: 0.8; padding: 0.25rem 0; }
-    #fileInput { display: none; }
+    body { margin:0; background:#000; color:#fff; font-family:"IBM Plex Mono", monospace; }
+    .wrap { max-width:1100px; margin:0 auto; padding:18px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .bar { border-bottom:1px solid #222; padding-bottom:12px; margin-bottom:12px; }
+    input, button, textarea { font:inherit; color:#fff; background:transparent; border:1px solid #333; padding:6px 10px; outline:none; }
+    button:hover { border-color:#fff; cursor:pointer; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .block { border:1px solid #222; padding:10px; }
+    .list { display:flex; flex-direction:column; gap:6px; }
+    .item { display:flex; justify-content:space-between; border:1px solid #222; padding:6px; }
+    .item:hover { border-color:#fff; }
+    .chip { border:1px solid #333; padding:2px 6px; }
+    textarea { width:100%; min-height:160px; }
+    iframe { width:100%; height:320px; border:1px solid #333; background:#111; }
+    img, video { max-width:100%; border:1px solid #333; background:#111; }
+    .danger { border-color:#c00; color:#fbb; }
+    .success { border-color:#0c0; color:#bfb; }
+    .status { font-size:12px; color:#888; min-height:18px; }
+    .spacer { flex:1; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Freign Mini Drive — 8TB Cloud</h1>
-    <div class="controls">
-      <input id="driveCodeInput" type="text" placeholder="Enter drive code (any string)" />
-      <button id="loadDriveBtn">Load drive</button>
+  <div class="wrap">
+    <div class="bar row">
+      <label>Drive:</label>
+      <input id="driveCode" placeholder="e.g. F92HD" />
+      <button id="loadDrive">Open</button>
+      <span id="driveStatus" class="status"></span>
+      <div class="spacer"></div>
+      <input id="fileInput" type="file" multiple />
       <button id="uploadBtn">Upload</button>
+      <button id="refreshBtn">Refresh</button>
+      <button id="qrBtn">Copy drive link</button>
     </div>
-  </header>
-
-  <main>
-    <div class="hint">Any code is a separate drive. Remember your code to return later.</div>
-    <div id="grid" class="grid"></div>
-  </main>
-
-  <!-- Add/Edit + Viewer Modal -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title" id="modalTitle">File</div>
-        <button id="closeModalBtn">Close</button>
-      </div>
-      <div class="modal-body">
-        <div class="pane viewer" id="viewerPane"></div>
-        <div class="pane">
-          <textarea id="textEditor" placeholder="Edit text/HTML here…"></textarea>
+    <div class="grid">
+      <div class="block">
+        <h3>Files</h3>
+        <div id="filesList" class="list"></div>
+        <div class="row" style="margin-top:8px">
+          <span id="listStatus" class="status"></span>
+          <div class="spacer"></div>
+          <button id="clearDriveBtn" class="danger">Clear drive</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button id="fullscreenBtn">Fullscreen</button>
-        <button id="runBtn">Run</button>
-        <button id="saveBtn">Save</button>
-        <button id="deleteBtn">Delete</button>
+      <div class="block">
+        <h3>Preview / Editor</h3>
+        <div class="row">
+          <span id="currentFileName" class="chip"></span>
+          <div class="spacer"></div>
+          <button id="downloadBtn">Download</button>
+          <button id="copyUrlBtn">Copy URL</button>
+          <button id="deleteBtn" class="danger">Delete</button>
+          <button id="runBtn">Run HTML</button>
+          <button id="saveBtn" class="success">Save</button>
+        </div>
+        <div id="previewArea" style="margin-top:10px"></div>
+        <div id="editorArea" style="margin-top:10px; display:none">
+          <textarea id="editor" placeholder="Edit text or HTML here"></textarea>
+        </div>
+        <div style="margin-top:10px">
+          <span id="previewStatus" class="status"></span>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Overlay for fullscreen and RUN preview -->
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="overlay-inner">
-      <div class="overlay-header">
-        <div class="modal-title">Preview</div>
-        <button id="closeOverlayBtn">Close</button>
-      </div>
-      <div id="overlayBody" class="overlay-body"></div>
-    </div>
-  </div>
-
-  <input type="file" id="fileInput" multiple accept="*/*" />
-
-  <!-- Firebase (compat SDK for simplicity in single-file) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    // Replace with your Firebase config
-    const firebaseConfig = {
-     apiKey: "AIzaSyBSKeTR1iDmoxP-LXBoQzIaV2yesHMMOFQ",
-     authDomain: "the-mini-drive.firebaseapp.com",
-     projectId: "the-mini-drive",
-     storageBucket: "the-mini-drive.firebasestorage.app",
-     messagingSenderId: "1034491450293",
-     appId: "1:1034491450293:web:9e6709e433d7c7422abffc",
-     measurementId: "G-JQ1GTHNB1X"
-};
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-
-    // UI refs
-    const grid = document.getElementById("grid");
-    const fileInput = document.getElementById("fileInput");
-    const driveCodeInput = document.getElementById("driveCodeInput");
-    const loadDriveBtn = document.getElementById("loadDriveBtn");
-    const uploadBtn = document.getElementById("uploadBtn");
-
-    const modal = document.getElementById("modal");
-    const closeModalBtn = document.getElementById("closeModalBtn");
-    const modalTitle = document.getElementById("modalTitle");
-    const viewerPane = document.getElementById("viewerPane");
-    const textEditor = document.getElementById("textEditor");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const runBtn = document.getElementById("runBtn");
-    const saveBtn = document.getElementById("saveBtn");
-    const deleteBtn = document.getElementById("deleteBtn");
-
-    const overlay = document.getElementById("overlay");
-    const overlayBody = document.getElementById("overlayBody");
-    const closeOverlayBtn = document.getElementById("closeOverlayBtn");
-
-    // State
-    let currentDrive = null;
-    let unsubscribe = null;
-    let currentFile = { name: null, type: null, url: null, text: null };
-
-    // Helpers
-    function setQueryDriveFromURL() {
-      const params = new URLSearchParams(location.search);
-      const d = params.get("d");
-      if (d) {
-        driveCodeInput.value = d;
-        currentDrive = d.toUpperCase();
-        loadDrive();
+    const SUPABASE_URL = "https://uwxohdtmpmbnnhfjcprd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG9oZHRtcG1ibm5oZmpjcHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MjI0OTEsImV4cCI6MjA3NTM5ODQ5MX0.9qXm4XvQSYkjxBsrbCotI5k0w-JXD-MoDlGlE_8fKY8";
+    const BUCKET = "drives";
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentDrive = "";
+    let currentFile = null;
+    let currentList = [];
+    const driveInput = document.getElementById("driveCode");
+    const driveStatus = document.getElementById("driveStatus");
+    const filesList = document.getElementById("filesList");
+    const listStatus = document.getElementById("listStatus");
+    const previewArea = document.getElementById("previewArea");
+    const previewStatus = document.getElementById("previewStatus");
+    const editorArea = document.getElementById("editorArea");
+    const editor = document.getElementById("editor");
+    const currentFileNameChip = document.getElementById("currentFileName");
+    function qsParam(key) { const u = new URL(window.location.href); return u.searchParams.get(key) || ""; }
+    function setStatus(el, msg) { el.textContent = msg || ""; }
+    function mimeFromName(name) {
+      const ext = (name.split(".").pop() || "").toLowerCase();
+      const m = { png:"image/png", jpg:"image/jpeg", jpeg:"image/jpeg", gif:"image/gif", webp:"image/webp", svg:"image/svg+xml", ico:"image/x-icon", mp4:"video/mp4", webm:"video/webm", txt:"text/plain", md:"text/markdown", json:"application/json", html:"text/html", htm:"text/html", css:"text/css", js:"application/javascript", pdf:"application/pdf" };
+      return m[ext] || "application/octet-stream";
+    }
+    function isTextLike(name, type) { const mt = type || mimeFromName(name); return mt.startsWith("text/") || mt === "application/json" || mt === "application/javascript"; }
+    function isHtml(name, type) { const mt = type || mimeFromName(name); return mt === "text/html"; }
+    function pathFor(drive, name) { return `${drive}/${name}`; }
+    function publicUrl(drive, name) { const { data } = sb.storage.from(BUCKET).getPublicUrl(pathFor(drive, name)); return data.publicUrl; }
+    async function openDrive(code) {
+      currentDrive = (code || "").trim();
+      if (!currentDrive) { setStatus(driveStatus, "Enter a drive code"); return; }
+      setStatus(driveStatus, `Opened ${currentDrive}`);
+      const u = new URL(window.location.href); u.searchParams.set("d", currentDrive); history.replaceState(null, "", u.toString());
+      await refreshList();
+    }
+    async function refreshList() {
+      filesList.innerHTML = "";
+      setStatus(listStatus, "Loading...");
+      const { data, error } = await sb.storage.from(BUCKET).list(currentDrive, { limit: 1000 });
+      if (error) { setStatus(listStatus, `Error: ${error.message}`); return; }
+      currentList = data || [];
+      setStatus(listStatus, `${currentList.length} file(s)`);
+      currentList.sort((a,b) => (a.name > b.name ? 1 : -1));
+      for (const f of currentList) {
+        const row = document.createElement("div"); row.className = "item";
+        const left = document.createElement("div"); left.textContent = f.name;
+        const right = document.createElement("div"); right.className = "row";
+        const openBtn = document.createElement("button"); openBtn.textContent = "Open"; openBtn.onclick = () => selectFile(f.name);
+        const urlBtn = document.createElement("button"); urlBtn.textContent = "URL"; urlBtn.onclick = () => { const url = publicUrl(currentDrive, f.name); navigator.clipboard.writeText(url); setStatus(previewStatus, "Copied public URL"); };
+        right.appendChild(openBtn); right.appendChild(urlBtn);
+        row.appendChild(left); row.appendChild(right);
+        filesList.appendChild(row);
       }
     }
-    function openModal() {
-      modal.classList.add("show");
-      modal.setAttribute("aria-hidden", "false");
+    async function selectFile(name) {
+      currentFile = { name, path: pathFor(currentDrive, name), type: mimeFromName(name) };
+      currentFileNameChip.textContent = name;
+      previewArea.innerHTML = "";
+      editorArea.style.display = "none";
+      setStatus(previewStatus, "Loading...");
+      const { data, error } = await sb.storage.from(BUCKET).download(currentFile.path);
+      if (error) { setStatus(previewStatus, `Error: ${error.message}`); return; }
+      const blob = data;
+      const type = currentFile.type;
+      if (type.startsWith("image/")) {
+        const img = document.createElement("img"); img.src = URL.createObjectURL(blob); previewArea.appendChild(img); setStatus(previewStatus, "");
+      } else if (type.startsWith("video/")) {
+        const vid = document.createElement("video"); vid.controls = true; vid.src = URL.createObjectURL(blob); previewArea.appendChild(vid); setStatus(previewStatus, "");
+      } else if (isHtml(name, type)) {
+        const text = await blob.text(); editor.value = text; editorArea.style.display = "block"; setStatus(previewStatus, "HTML loaded");
+      } else if (isTextLike(name, type)) {
+        const text = await blob.text(); editor.value = text; editorArea.style.display = "block"; setStatus(previewStatus, "Text loaded");
+      } else if (type === "application/pdf") {
+        const iframe = document.createElement("iframe"); iframe.src = URL.createObjectURL(blob); previewArea.appendChild(iframe); setStatus(previewStatus, "");
+      } else {
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = name; link.textContent = "Download file"; previewArea.appendChild(link); setStatus(previewStatus, "Ready to download");
+      }
     }
-    function closeModal() {
-      modal.classList.remove("show");
-      modal.setAttribute("aria-hidden", "true");
-      currentFile = { name: null, type: null, url: null, text: null };
-      viewerPane.innerHTML = "";
-      textEditor.value = "";
-    }
-    function openOverlay() {
-      overlay.classList.add("show");
-      overlay.setAttribute("aria-hidden", "false");
-    }
-    function closeOverlay() {
-      overlay.classList.remove("show");
-      overlay.setAttribute("aria-hidden", "true");
-      overlayBody.innerHTML = "";
-    }
-    function mimeKind(type, name="") {
-      const t = (type || "").toLowerCase();
-      const n = (name || "").toLowerCase();
-      if (t.startsWith("image/")) return "image";
-      if (t.startsWith("video/")) return "video";
-      if (t === "text/html" || n.endsWith(".html") || n.endsWith(".htm")) return "html";
-      if (t.startsWith("text/") || n.endsWith(".txt") || n.endsWith(".md") || n.endsWith(".json")) return "text";
-      return "binary";
-    }
-
-    // Drive load and realtime listing
-    async function loadDrive() {
-      if (!currentDrive) return alert("Enter a drive code");
-      // Ensure drive doc exists (optional metadata)
-      await db.collection("drives").doc(currentDrive).set({ created: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-
-      // Cleanup previous subscription
-      if (unsubscribe) unsubscribe();
-
-      grid.innerHTML = "";
-      unsubscribe = db.collection("drives").doc(currentDrive).collection("files")
-        .orderBy("updated", "desc")
-        .onSnapshot(snap => {
-          grid.innerHTML = "";
-          if (snap.empty) {
-            const empty = document.createElement("div");
-            empty.textContent = "No files yet. Click “Upload” to add.";
-            grid.appendChild(empty);
-            return;
-          }
-          snap.forEach(doc => {
-            const data = doc.data();
-            const card = document.createElement("div");
-            card.className = "card";
-            const nameEl = document.createElement("div");
-            nameEl.className = "name";
-            nameEl.textContent = data.name;
-            const typeEl = document.createElement("div");
-            typeEl.className = "type";
-            typeEl.textContent = data.type || "unknown";
-            card.appendChild(nameEl);
-            card.appendChild(typeEl);
-            card.onclick = () => openFile(data.name, data.type);
-            grid.appendChild(card);
-          });
-        });
-    }
-
-    // Upload handler
-    uploadBtn.addEventListener("click", () => {
-      if (!currentDrive) return alert("Load a drive first");
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", async (e) => {
-      const files = Array.from(e.target.files || []);
-      if (!files.length || !currentDrive) return;
+    async function uploadSelected() {
+      if (!currentDrive) { setStatus(driveStatus, "Open a drive first"); return; }
+      const input = document.getElementById("fileInput");
+      const files = Array.from(input.files || []);
+      if (!files.length) { setStatus(listStatus, "Choose files to upload"); return; }
+      setStatus(listStatus, `Uploading ${files.length} file(s)...`);
       for (const file of files) {
-        const fileRef = storage.ref(`drives/${currentDrive}/${file.name}`);
-        // Upload raw file (binary or text)
-        await fileRef.put(file);
-        await db.collection("drives").doc(currentDrive).collection("files").doc(file.name).set({
-          name: file.name,
-          type: file.type || "application/octet-stream",
-          updated: Date.now()
-        });
+        const path = pathFor(currentDrive, file.name);
+        const contentType = file.type || mimeFromName(file.name);
+        const { error } = await sb.storage.from(BUCKET).upload(path, file, { upsert: true, contentType });
+        if (error) { setStatus(listStatus, `Error: ${error.message}`); return; }
       }
-      fileInput.value = "";
-    });
-
-    // Open file into modal
-    async function openFile(name, type) {
-      const ref = storage.ref(`drives/${currentDrive}/${name}`);
-      const url = await ref.getDownloadURL();
-      currentFile = { name, type, url, text: null };
-      modalTitle.textContent = name;
-      viewerPane.innerHTML = "";
-      textEditor.value = "";
-
-      const kind = mimeKind(type, name);
-      if (kind === "image") {
-        const img = document.createElement("img");
-        img.src = url;
-        viewerPane.appendChild(img);
-        textEditor.value = "";
-        runBtn.disabled = true;
-      } else if (kind === "video") {
-        const v = document.createElement("video");
-        v.src = url; v.controls = true;
-        viewerPane.appendChild(v);
-        textEditor.value = "";
-        runBtn.disabled = true;
-      } else if (kind === "html" || kind === "text") {
-        const res = await fetch(url);
-        const text = await res.text();
-        currentFile.text = text;
-        // Viewer shows a preview or live iframe for HTML
-        if (kind === "html") {
-          const iframe = document.createElement("iframe");
-          iframe.sandbox = "allow-scripts allow-same-origin";
-          iframe.srcdoc = text;
-          viewerPane.appendChild(iframe);
-          runBtn.disabled = false;
-        } else {
-          const pre = document.createElement("pre");
-          pre.textContent = text.slice(0, 5000);
-          viewerPane.appendChild(pre);
-          runBtn.disabled = true;
-        }
-        textEditor.value = text;
-      } else {
-        const pre = document.createElement("pre");
-        pre.textContent = "Unsupported preview (binary). You can still delete this file.";
-        viewerPane.appendChild(pre);
-        textEditor.value = "";
-        runBtn.disabled = true;
-      }
-      openModal();
+      setStatus(listStatus, "Upload complete");
+      input.value = "";
+      await refreshList();
     }
-
-    // Save edited text/HTML back to Storage
-    saveBtn.addEventListener("click", async () => {
-      if (!currentFile.name) return;
-      const kind = mimeKind(currentFile.type, currentFile.name);
-      if (kind !== "text" && kind !== "html") {
-        alert("Only text/HTML files can be edited here.");
-        return;
-      }
-      const newText = textEditor.value;
-      const ref = storage.ref(`drives/${currentDrive}/${currentFile.name}`);
-      // Upload as string, set correct contentType
-      const metadata = { contentType: kind === "html" ? "text/html" : (currentFile.type || "text/plain") };
-      await ref.putString(newText, "raw", metadata);
-      await db.collection("drives").doc(currentDrive).collection("files").doc(currentFile.name).set({
-        name: currentFile.name,
-        type: metadata.contentType,
-        updated: Date.now()
-      }, { merge: true });
-      alert("Saved.");
-      // Refresh viewer (optional)
-      openFile(currentFile.name, metadata.contentType);
-    });
-
-    // Delete file with confirmation
-    deleteBtn.addEventListener("click", async () => {
-      if (!currentFile.name) return;
-      const ok = confirm(`Delete ${currentFile.name}? This cannot be undone.`);
-      if (!ok) return;
-      const ref = storage.ref(`drives/${currentDrive}/${currentFile.name}`);
-      await ref.delete().catch(err => alert("Delete failed: " + err.message));
-      await db.collection("drives").doc(currentDrive).collection("files").doc(currentFile.name).delete().catch(()=>{});
-      closeModal();
-    });
-
-    // Fullscreen (overlay)
-    fullscreenBtn.addEventListener("click", async () => {
-      if (!currentFile.name) return;
-      const kind = mimeKind(currentFile.type, currentFile.name);
-      overlayBody.innerHTML = "";
-      if (kind === "image") {
-        const img = document.createElement("img");
-        img.src = currentFile.url;
-        overlayBody.appendChild(img);
-      } else if (kind === "video") {
-        const v = document.createElement("video");
-        v.src = currentFile.url; v.controls = true;
-        overlayBody.appendChild(v);
-      } else if (kind === "html") {
-        const iframe = document.createElement("iframe");
-        iframe.sandbox = "allow-scripts allow-same-origin";
-        // Use latest edited text if present
-        iframe.srcdoc = textEditor.value || currentFile.text || "";
-        overlayBody.appendChild(iframe);
-      } else if (kind === "text") {
-        const pre = document.createElement("pre");
-        pre.textContent = textEditor.value || currentFile.text || "";
-        overlayBody.appendChild(pre);
-      } else {
-        const pre = document.createElement("pre");
-        pre.textContent = "No fullscreen preview available.";
-        overlayBody.appendChild(pre);
-      }
-      openOverlay();
-    });
-
-    // Run HTML (sandboxed iframe)
-    runBtn.addEventListener("click", () => {
-      if (!currentFile.name) return;
-      const kind = mimeKind(currentFile.type, currentFile.name);
-      if (kind !== "html") {
-        alert("Only HTML files can be RUN.");
-        return;
-      }
-      overlayBody.innerHTML = "";
-      const iframe = document.createElement("iframe");
-      iframe.sandbox = "allow-scripts allow-same-origin";
-      iframe.srcdoc = textEditor.value || currentFile.text || "";
-      overlayBody.appendChild(iframe);
-      openOverlay();
-    });
-
-    // Close modal/overlay
-    closeModalBtn.addEventListener("click", closeModal);
-    closeOverlayBtn.addEventListener("click", closeOverlay);
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeOverlay(); });
-    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
-
-    // Drive load button
-    loadDriveBtn.addEventListener("click", () => {
-      const code = driveCodeInput.value.trim();
-      if (!code) return alert("Enter a drive code");
-      currentDrive = code.toUpperCase();
-      // Update URL param for easy return
-      const params = new URLSearchParams(location.search);
-      params.set("d", currentDrive);
-      history.replaceState(null, "", "?" + params.toString());
-      loadDrive();
-    });
-
-    // Init (support ?d=CODE)
-    setQueryDriveFromURL();
+    async function saveCurrent() {
+      if (!currentFile) { setStatus(previewStatus, "No file selected"); return; }
+      const content = editor.value || "";
+      const type = isHtml(currentFile.name, currentFile.type) ? "text/html" : "text/plain";
+      const blob = new Blob([content], { type });
+      const { error } = await sb.storage.from(BUCKET).upload(currentFile.path, blob, { upsert: true, contentType: type });
+      if (error) { setStatus(previewStatus, `Error: ${error.message}`); return; }
+      setStatus(previewStatus, "Saved");
+      await refreshList();
+    }
+    function runHtml() {
+      if (!currentFile) { setStatus(previewStatus, "No file selected"); return; }
+      const content = editor.value || "";
+      const blob = new Blob([content], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      previewArea.innerHTML = "";
+      const frame = document.createElement("iframe"); frame.src = url; previewArea.appendChild(frame);
+      setStatus(previewStatus, "Running preview");
+    }
+    async function deleteCurrent() {
+      if (!currentFile) { setStatus(previewStatus, "No file selected"); return; }
+      const ok = confirm(`Delete ${currentFile.name}?`); if (!ok) return;
+      const { error } = await sb.storage.from(BUCKET).remove([currentFile.path]);
+      if (error) { setStatus(previewStatus, `Error: ${error.message}`); return; }
+      setStatus(previewStatus, "Deleted");
+      currentFile = null; currentFileNameChip.textContent = ""; previewArea.innerHTML = ""; editorArea.style.display = "none";
+      await refreshList();
+    }
+    async function clearDrive() {
+      if (!currentDrive) return;
+      const ok = confirm(`Delete ALL files in ${currentDrive}?`); if (!ok) return;
+      const { data, error } = await sb.storage.from(BUCKET).list(currentDrive, { limit: 1000 });
+      if (error) { setStatus(listStatus, `Error: ${error.message}`); return; }
+      const paths = (data || []).map(f => pathFor(currentDrive, f.name));
+      if (!paths.length) { setStatus(listStatus, "Drive is empty"); return; }
+      const res = await sb.storage.from(BUCKET).remove(paths);
+      if (res.error) { setStatus(listStatus, `Error: ${res.error.message}`); return; }
+      setStatus(listStatus, "Drive cleared");
+      await refreshList();
+    }
+    async function downloadCurrent() {
+      if (!currentFile) { setStatus(previewStatus, "No file selected"); return; }
+      const { data, error } = await sb.storage.from(BUCKET).download(currentFile.path);
+      if (error) { setStatus(previewStatus, `Error: ${error.message}`); return; }
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a"); a.href = url; a.download = currentFile.name; a.click();
+      setStatus(previewStatus, "Downloaded");
+    }
+    async function copyCurrentUrl() {
+      if (!currentFile) { setStatus(previewStatus, "No file selected"); return; }
+      const url = publicUrl(currentDrive, currentFile.name);
+      await navigator.clipboard.writeText(url);
+      setStatus(previewStatus, "Copied public URL");
+    }
+    function copyDriveLink() {
+      const u = new URL(window.location.href);
+      const code = currentDrive || (driveInput.value || "").trim();
+      if (!code) { setStatus(driveStatus, "Enter a drive code"); return; }
+      u.searchParams.set("d", code);
+      navigator.clipboard.writeText(u.toString());
+      setStatus(driveStatus, "Drive link copied");
+    }
+    document.getElementById("loadDrive").onclick = () => openDrive(driveInput.value);
+    document.getElementById("uploadBtn").onclick = uploadSelected;
+    document.getElementById("refreshBtn").onclick = refreshList;
+    document.getElementById("qrBtn").onclick = copyDriveLink;
+    document.getElementById("saveBtn").onclick = saveCurrent;
+    document.getElementById("runBtn").onclick = runHtml;
+    document.getElementById("deleteBtn").onclick = deleteCurrent;
+    document.getElementById("downloadBtn").onclick = downloadCurrent;
+    document.getElementById("copyUrlBtn").onclick = copyCurrentUrl;
+    document.getElementById("clearDriveBtn").onclick = clearDrive;
+    (function init() { const d = qsParam("d"); if (d) { driveInput.value = d; openDrive(d); } })();
   </script>
 </body>
 </html>
